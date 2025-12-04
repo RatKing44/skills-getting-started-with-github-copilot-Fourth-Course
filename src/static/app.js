@@ -10,8 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch("/activities");
       const activities = await response.json();
 
-      // Clear loading message
+      // Clear loading message and reset select options
       activitiesList.innerHTML = "";
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
@@ -20,14 +21,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
+          activityCard.innerHTML = `
+            <h4>${name}</h4>
+            <p>${details.description}</p>
+            <p><strong>Schedule:</strong> ${details.schedule}</p>
+            <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+            <div class="participants-section">
+              <h5>Participants</h5>
+              <div class="participants-wrapper"></div>
+            </div>
+          `;
 
-        activitiesList.appendChild(activityCard);
+          // Build participants list without bullets and with delete buttons
+          const wrapper = activityCard.querySelector('.participants-wrapper');
+          const ul = document.createElement('ul');
+          ul.className = 'participants-list';
+
+          if (Array.isArray(details.participants) && details.participants.length > 0) {
+            details.participants.forEach((p) => {
+              const li = document.createElement('li');
+              li.className = 'participant-item';
+
+              const span = document.createElement('span');
+              span.className = 'participant-email';
+              span.textContent = p;
+
+              const btn = document.createElement('button');
+              btn.className = 'delete-participant';
+              btn.title = 'Unregister participant';
+              btn.textContent = '\u00D7'; // multiplication sign '×'
+              btn.dataset.activity = name;
+              btn.dataset.email = p;
+
+              btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const activityName = btn.dataset.activity;
+                const email = btn.dataset.email;
+                try {
+                  const res = await fetch(`/activities/${encodeURIComponent(activityName)}/participants?email=${encodeURIComponent(email)}`, {
+                    method: 'DELETE'
+                  });
+                  const payload = await res.json();
+                  if (res.ok) {
+                    messageDiv.textContent = payload.message || 'Participant unregistered';
+                    messageDiv.className = 'message success';
+                    messageDiv.classList.remove('hidden');
+                    // Refresh activities list
+                    fetchActivities();
+                  } else {
+                    messageDiv.textContent = payload.detail || 'Failed to unregister participant';
+                    messageDiv.className = 'message error';
+                    messageDiv.classList.remove('hidden');
+                  }
+                  setTimeout(() => messageDiv.classList.add('hidden'), 4000);
+                } catch (err) {
+                  console.error('Error unregistering participant:', err);
+                  messageDiv.textContent = 'Failed to unregister participant';
+                  messageDiv.className = 'message error';
+                  messageDiv.classList.remove('hidden');
+                  setTimeout(() => messageDiv.classList.add('hidden'), 4000);
+                }
+              });
+
+              li.appendChild(span);
+              li.appendChild(btn);
+              ul.appendChild(li);
+            });
+          } else {
+            const li = document.createElement('li');
+            li.className = 'no-participants';
+            li.textContent = 'No participants yet';
+            ul.appendChild(li);
+          }
+
+          wrapper.appendChild(ul);
+
+          activitiesList.appendChild(activityCard);
 
         // Add option to select dropdown
         const option = document.createElement("option");

@@ -74,6 +74,75 @@ section h3 {
   margin-bottom: 8px;
 }
 
+/* Participants section styling */
+.activity-card .participants-section {
+  margin-top: 12px;
+}
+
+.activity-card .participants-section h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #1a237e;
+  font-weight: 600;
+}
+
+/* Bulleted, wrapping participant pills */
+
+.activity-card .participants-list {
+  list-style: none; /* hide bullets */
+  padding-left: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.activity-card .participants-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.activity-card .participant-item .participant-email {
+  background-color: #e8f0ff;
+  color: #102a6d;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.delete-participant {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-participant:hover {
+  background-color: rgba(198, 40, 40, 0.08);
+}
+
+/* Fallback when there are no participants */
+.activity-card .participants-list li.no-participants {
+  background: transparent;
+  color: #666;
+  font-style: italic;
+  border-radius: 0;
+  padding: 0;
+  list-style: none;
+  margin-left: 0;
+}
+
 .form-group {
   margin-bottom: 15px;
 }
